@@ -19,7 +19,7 @@ defineEmits(["update:modelvalue"]);
 
 <style scoped>
 .form__input {
-  width: 600px;
+  /* width: 600px; */
   padding: 18px 20px;
   outline: none;
   font-size: 18px;

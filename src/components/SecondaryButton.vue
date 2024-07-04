@@ -15,7 +15,7 @@ defineProps({
 <style scoped>
 .primary-btn {
   width: fit-content;
-  background: var(--primary-color);
+  background: var(--danger-color);
   border: none;
   border-radius: 5px;
   padding: 10px;

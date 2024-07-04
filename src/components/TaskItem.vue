@@ -1,49 +1,55 @@
 <script setup>
+import axios from "axios";
 import { ref, watch } from "vue";
 const task__value = ref(null);
+const API_KEY = import.meta.env.VITE_API_KEY;
 const props = defineProps({
   taskId: Number,
-  value: String,
+  title: String,
   arr: Array,
+  striked: Boolean,
   // msg: String,
 });
-const isChecked = ref("no-checked");
+const isChecked = ref(striked.value);
 const emit = defineEmits(["deleteHandler"]);
-props.arr.forEach(item=>{
-  if(item.id == props.taskId){isChecked.value = item.checked}
-})
 function checkTask(e) {
-  // e.target.classList.toggle("checked");
-  task__value.value.classList.toggle("strike");
-
   props.arr.forEach((item, index, arr) => {
-    if(item.id == props.taskId){
+    if (item.id == props.taskId) {
       console.log(item.checked);
-      if(item.checked == "no-checked"){ 
-        isChecked.value = "checked";
-        item.checked = "checked";
-      }else{
-        isChecked.value = "no-checked";
-        item.checked = "no-checked";
+      if (item.striked == false) {
+        axios.put(`http://localhost:2000/api/posts?key=${API_KEY}`, {
+          _id: taskId,
+          title: props.title,
+          striked: true,
+        });
+        isChecked.value = true;
+        item.striked = true;
+      } else {
+        axios.put(`http://localhost:2000/api/posts?key=${API_KEY}`, {
+          _id: taskId,
+          title: props.title,
+          striked: false,
+        });
+        isChecked.value = false;
+        item.striked = false;
       }
       props.arr = arr;
-      localStorage.setItem('tasks', JSON.stringify(arr));
     }
-  })
+  });
 }
 
-function addcheckedToArr(){
-  
-}
+function addcheckedToArr() {}
 
 function deleteTask() {
-  props.arr.forEach((item, index, arr)=>{
-    if(item.id == props.taskId){
-      arr.splice(index, 1)
-      localStorage.setItem('tasks', JSON.stringify(arr));
+  axios.delete(`http://localhost:2000/api/tasks?key=${API_KEY}`, {
+    _id: props.taskId,
+  });
+  props.arr.forEach((item, index, arr) => {
+    if (item.id == props.taskId) {
+      arr.splice(index, 1);
+      localStorage.setItem("tasks", JSON.stringify(arr));
     }
-    
-  })
+  });
   emit("deleteHandler");
 }
 </script>
@@ -51,7 +57,9 @@ function deleteTask() {
 <template>
   <div class="todo__task">
     <div :class="['task__check', `${isChecked}`]" @click="checkTask"></div>
-    <p class="task__value" :class="`${isChecked}`" ref="task__value">{{ value }}</p>
+    <p class="task__value" :class="`${isChecked}`" ref="task__value">
+      {{ title }}
+    </p>
     <div class="task__delete" @click="deleteTask">
       <img
         src="/delete-nonactive.svg"
