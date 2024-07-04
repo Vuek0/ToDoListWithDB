@@ -93,6 +93,7 @@ async function registrationHandler(e) {
         if (!getCookie("_id")) setCookie("_id", object.data._id, 3);
         userObj.value = object;
         isRegistered.value = true;
+        window.location.reload();
       }
     } catch (err) {
       console.log(err);
