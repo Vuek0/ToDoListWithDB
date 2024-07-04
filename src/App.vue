@@ -14,7 +14,7 @@ const title = ref(null);
 const todoes = ref([]);
 const formError = ref();
 const API_KEY = import.meta.env.VITE_API_KEY;
-let userObj;
+const userObj = ref();
 
 onMounted(async () => {
   if (getCookie("_id")) {
@@ -22,15 +22,17 @@ onMounted(async () => {
     const response = await axios.get(
       `http://localhost:2000/api/users?key=${API_KEY}&_id=${id}`
     );
-    const userObj = response.data;
+    userObj.value = response.data;
+    console.log(userObj.value);
     isRegistered.value = true;
     isLoginForm.value = false;
 
     const tasks = await axios.get(
       `http://localhost:2000/api/tasks?key=${API_KEY}&userId=${id}`
     );
-    todoes.value = tasks;
-    console.log(tasks);
+    todoes.value = tasks.data.data;
+    console.log(todoes.value);
+    // console.log(tasks);
   }
 });
 
@@ -49,15 +51,19 @@ async function loginHandler(e) {
       .get(
         `http://localhost:2000/api/users?login=${login.value}&password=${password.value}&key=${API_KEY}`
       )
-      .then((res) => {
+      .then(async (res) => {
         const userData = res.data;
         if (userData.status && userData.status !== 200) {
           formError.value = userData.message;
         } else {
-          userObj = userData.data;
+          userObj.value = userData.data;
           isLoginForm.value = false;
           isRegistered.value = true;
           if (!getCookie("_id")) setCookie("_id", userData.data._id, 3);
+          const tasks = await axios.get(
+            `http://localhost:2000/api/tasks?key=${API_KEY}&userId=${userData.data._id}`
+          );
+          todoes.value = tasks.data.data;
         }
       });
   } else {
@@ -77,15 +83,15 @@ async function registrationHandler(e) {
     };
     try {
       const req = await axios.post(
-        `https://to-do-list-server-amber.vercel.app/api/users?key=${API_KEY}`,
+        `http://localhost:2000/api/users?key=${API_KEY}`,
         data
       );
       const res = await req;
-      const object = await res.data.data;
+      const object = await res.data;
       console.log(object);
       if (res.status == 200) {
         if (!getCookie("_id")) setCookie("_id", object.data._id, 3);
-        userObj = object;
+        userObj.value = object;
         isRegistered.value = true;
       }
     } catch (err) {
@@ -99,45 +105,32 @@ async function registrationHandler(e) {
 
 function addTask(e) {
   e.preventDefault();
-  // if(!title.value){
-  //   alert("Задача не может быть пуста");
-  //   return;
-  // }
 
-  // if(title.value.length > 30){
-  //   alert("Задача по длине должна быть не больше 30 символов")
-  //   return;
-  // }
-  axios
-    .post(`http://localhost:2000/api/tasks?key=${API_KEY}`, {
-      title: title.value,
-      striked: false,
-      userId: userObj._id,
-    })
-    .then((task) => {
-      todoes.value.push(task);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  console.log(title.value.length);
 
-  // const arr = [];
-  // todoes.value.forEach((item) =>
-  //   arr.push({ task: item.task, id: item.id, striked: item.striked })
-  // );
-  // localStorage.setItem("tasks", JSON.stringify(arr));
-  // const get = localStorage.getItem("tasks");
-  // console.log(JSON.parse(get));
+  if (todoes.value.length < 7) {
+    if (title.value.length < 30) {
+      axios
+        .post(`http://localhost:2000/api/tasks?key=${API_KEY}`, {
+          title: title.value,
+          striked: false,
+          userId: userObj.value._id,
+        })
+        .then((task) => {
+          console.log(task);
+          todoes.value.push(task.data.data);
+          console.log(todoes.value);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      alert("Слишком много символов");
+    }
+  } else {
+    alert("Уже слишком много задач");
+  }
 }
-
-// onMounted(async () => {
-//   const tasks = await axios.get("http://localhost:2000/api/tasks");
-//   console.log(tasks);
-// });
-
-// if (localStorage.getItem("tasks")) {
-//   todoes.value = JSON.parse(localStorage.getItem("tasks"));
-// }
 </script>
 
 <template>
@@ -214,7 +207,6 @@ function addTask(e) {
           :task-id="item._id"
           :striked="item.striked"
           :arr="todoes"
-          :delete-func="deleteHandler"
           v-for="item in todoes"
           :key="item"
         />
@@ -287,6 +279,7 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 100px;
   button {
     height: fit-content;
   }
@@ -298,7 +291,7 @@ h1 {
   gap: 40px;
 
   input {
-    width: 600px;
+    width: 100%;
   }
 }
 
@@ -321,5 +314,16 @@ h1 {
 
 #todo__submit:focus {
   outline: 4px solid lightblue;
+}
+
+@media (max-width: 767px) {
+  .todo__header {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .todo__container {
+    padding: 30px;
+  }
 }
 </style>
