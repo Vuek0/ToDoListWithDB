@@ -77,7 +77,7 @@ async function registrationHandler(e) {
     };
     try {
       const req = await axios.post(
-        `http://to-do-list-server-lake.vercel.app/api/users?key=${API_KEY}`,
+        `https://to-do-list-server-lake.vercel.app/api/users?key=${API_KEY}`,
         data
       );
       const res = await req;
