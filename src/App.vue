@@ -20,7 +20,7 @@ onMounted(async () => {
   if (getCookie("_id")) {
     const id = getCookie("_id");
     const response = await axios.get(
-      `http://localhost:2000/api/users?key=${API_KEY}&_id=${id}`
+      `https://to-do-list-server-amber.vercel.app/api/users?key=${API_KEY}&_id=${id}`
     );
     userObj.value = response.data;
     console.log(userObj.value);
@@ -28,7 +28,7 @@ onMounted(async () => {
     isLoginForm.value = false;
 
     const tasks = await axios.get(
-      `http://localhost:2000/api/tasks?key=${API_KEY}&userId=${id}`
+      `https://to-do-list-server-amber.vercel.app/api/tasks?key=${API_KEY}&userId=${id}`
     );
     todoes.value = tasks.data.data;
     console.log(todoes.value);
@@ -49,7 +49,7 @@ async function loginHandler(e) {
   if (login.value && password.value) {
     const response = await axios
       .get(
-        `http://localhost:2000/api/users?login=${login.value}&password=${password.value}&key=${API_KEY}`
+        `https://to-do-list-server-amber.vercel.app/api/users?login=${login.value}&password=${password.value}&key=${API_KEY}`
       )
       .then(async (res) => {
         const userData = res.data;
@@ -61,7 +61,7 @@ async function loginHandler(e) {
           isRegistered.value = true;
           if (!getCookie("_id")) setCookie("_id", userData.data._id, 3);
           const tasks = await axios.get(
-            `http://localhost:2000/api/tasks?key=${API_KEY}&userId=${userData.data._id}`
+            `https://to-do-list-server-amber.vercel.app/api/tasks?key=${API_KEY}&userId=${userData.data._id}`
           );
           todoes.value = tasks.data.data;
         }
@@ -83,7 +83,7 @@ async function registrationHandler(e) {
     };
     try {
       const req = await axios.post(
-        `http://localhost:2000/api/users?key=${API_KEY}`,
+        `https://to-do-list-server-amber.vercel.app/api/users?key=${API_KEY}`,
         data
       );
       const res = await req;
@@ -111,11 +111,14 @@ function addTask(e) {
   if (todoes.value.length < 7) {
     if (title.value.length < 30) {
       axios
-        .post(`http://localhost:2000/api/tasks?key=${API_KEY}`, {
-          title: title.value,
-          striked: false,
-          userId: userObj.value._id,
-        })
+        .post(
+          `https://to-do-list-server-amber.vercel.app/api/tasks?key=${API_KEY}`,
+          {
+            title: title.value,
+            striked: false,
+            userId: userObj.value._id,
+          }
+        )
         .then((task) => {
           console.log(task);
           todoes.value.push(task.data.data);

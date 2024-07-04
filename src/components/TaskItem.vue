@@ -27,19 +27,25 @@ function checkTask(e) {
     if (item._id == props.taskId) {
       console.log(item.checked);
       if (item.striked == false) {
-        axios.put(`http://localhost:2000/api/tasks?key=${API_KEY}`, {
-          _id: props.taskId,
-          title: props.title,
-          striked: true,
-        });
+        axios.put(
+          `https://to-do-list-server-amber.vercel.app/api/tasks?key=${API_KEY}`,
+          {
+            _id: props.taskId,
+            title: props.title,
+            striked: true,
+          }
+        );
         isChecked.value = true;
         item.striked = true;
       } else {
-        axios.put(`http://localhost:2000/api/tasks?key=${API_KEY}`, {
-          _id: props.taskId,
-          title: props.title,
-          striked: false,
-        });
+        axios.put(
+          `https://to-do-list-server-amber.vercel.app/api/tasks?key=${API_KEY}`,
+          {
+            _id: props.taskId,
+            title: props.title,
+            striked: false,
+          }
+        );
         isChecked.value = false;
         item.striked = false;
       }
@@ -53,11 +59,14 @@ function editTask(e) {
   if (editValue.value !== props.title) {
     if (editValue.value.length < 30) {
       axios
-        .put(`http://localhost:2000/api/tasks?key=${API_KEY}`, {
-          _id: props.taskId,
-          title: editValue.value,
-          striked: props.striked,
-        })
+        .put(
+          `https://to-do-list-server-amber.vercel.app/api/tasks?key=${API_KEY}`,
+          {
+            _id: props.taskId,
+            title: editValue.value,
+            striked: props.striked,
+          }
+        )
         .then((data) => {
           title.value = editValue.value;
           isEditing.value = false;
@@ -75,7 +84,9 @@ function deleteTask() {
   // alert("deleting");
   const id = props.taskId;
   axios
-    .delete(`http://localhost:2000/api/tasks?key=${API_KEY}&_id=${id}`)
+    .delete(
+      `https://to-do-list-server-amber.vercel.app/api/tasks?key=${API_KEY}&_id=${id}`
+    )
     .then((data) => {
       console.log(data);
     });
